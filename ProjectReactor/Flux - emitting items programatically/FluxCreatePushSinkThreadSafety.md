@@ -413,4 +413,4 @@ For thread safety:
 
 ### Interview takeaway
 
-> `FluxSink` is the object used to imperatively emit signals (`onNext`, `onComplete`, and `onError`) into a `Flux`, typically when adapting callback-based or event-driven APIs to Reactor. `Flux.create()` supports concurrent emissions from multiple producer threads, whereas `Flux.push()` is intended for a single producer thread.
+> `FluxSink` is the object used to imperatively (on command) emit signals (`onNext`, `onComplete`, and `onError`) into a `Flux`, typically when adapting callback-based or event-driven APIs to Reactor. `Flux.create()` supports concurrent emissions from multiple producer threads, whereas `Flux.push()` is intended for a single producer thread.
