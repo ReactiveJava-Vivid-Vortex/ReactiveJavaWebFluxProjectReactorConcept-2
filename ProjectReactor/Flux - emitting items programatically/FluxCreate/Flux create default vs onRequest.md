@@ -110,7 +110,11 @@ That's where **backpressure strategies** (BUFFER, DROP, LATEST, ERROR, IGNORE) c
 
 ---
 
-# 2. What is `onRequest()`?
+# 2. What is `onRequest()`? For knowing how it's different from take, check (https://github.com/ReactiveJava-Vivid-Vortex/ReactiveJavaWebFluxProjectReactorConcept-2/blob/d602e2965bf9f498518ff3688bd4d050944a20b5/ProjectReactor/Flux/flux%20take.md)
+
+onRequest() is a side-effect (debugging/monitoring) operator.
+
+It lets you observe how many items the downstream requested.
 
 Sometimes you don't want to produce everything immediately.
 
