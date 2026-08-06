@@ -2,7 +2,7 @@
 
 ## Simple explanation
 
-Same concep is available in Mono also, basically it's talking about starting the calling method and not subscription.
+Same concept is available in Mono also (https://github.com/ReactiveJava-Vivid-Vortex/ReactiveJavaWebFluxProjectReactorConcept-2/blob/b6b0698907ea616821dfa8f342ae504e83f339fc/ProjectReactor/CreateVsExecuteAndDefer.md?plain=1#L170), basically it's talking about starting the calling method and not subscription.
 
 Think of `Flux.defer()` as **"Don't create the Flux now. Create it only when someone subscribes."**
 
