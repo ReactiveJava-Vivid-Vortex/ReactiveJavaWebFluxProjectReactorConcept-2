@@ -709,7 +709,7 @@ It is already non-blocking.
 
 ---
 
-<mark># A good mental model</mark>
+# <mark>A good mental model</mark>
 
 Think of these adapters as **wrapping paper**, not a magic machine.
 
