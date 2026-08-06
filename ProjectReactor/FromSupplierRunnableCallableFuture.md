@@ -12,7 +12,7 @@ Your question is almost perfect. A slightly more natural version would be:
 
 ## First understand why these methods exist
 
-Project Reactor is all about wrapping **existing code** into a `Mono` or `Flux`.
+<mark>Project Reactor is all about wrapping **existing code** into a `Mono` or `Flux`.</mark>
 
 Imagine you already have Java code like this:
 
@@ -36,7 +36,7 @@ Think of it like this:
 | Runnable | `Mono.fromRunnable()` |
 | CompletableFuture | `Mono.fromFuture()` |
 
-They are simply **adapters**.
+<mark>They are simply **adapters**.</mark>
 
 ---
 
