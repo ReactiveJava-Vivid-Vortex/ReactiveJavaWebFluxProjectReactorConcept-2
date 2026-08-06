@@ -284,7 +284,7 @@ Think of `Flux.generate()` as a person with **very short-term memory**:
 
 
 
-# Q: Explain `generate` state supplier in simple terms
+# Q: Explain `generate` state supplier (the first argument of Flux.generate(stateSupplier, generator) ) in simple terms
 
 The **state supplier** is simply a way to **give `Flux.generate()` some memory**.
 
