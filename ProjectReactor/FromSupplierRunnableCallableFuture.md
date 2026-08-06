@@ -495,3 +495,235 @@ Mono.fromCallable(() -> Files.readString(path))
 ```
 
 This keeps your reactive event-loop threads free while the blocking work runs on a thread pool designed for such tasks.
+
+---
+
+Q. So basically, are fromSupplier(), fromCallable(), fromRunnable(), and fromFuture() adapters that make blocking code non-blocking? However, to truly achieve non-blocking behavior, in addition to wrapping the code with these adapters, do we also need to use .subscribeOn(Schedulers.boundedElastic())?
+
+# Short Answer
+
+**Almost, but not exactly.**
+
+These methods **do not make blocking code non-blocking.**
+
+They **adapt existing Java APIs into Reactor types (`Mono`)**.
+
+Whether the code is blocking or non-blocking depends on **what is inside the adapter**, not on the adapter itself.
+
+---
+
+# Think of it this way
+
+Suppose you have this blocking code:
+
+```java
+String data = Files.readString(path);
+```
+
+This blocks the current thread until the file is read.
+
+Now you wrap it:
+
+```java
+Mono<String> mono =
+    Mono.fromCallable(() -> Files.readString(path));
+```
+
+Did it become non-blocking?
+
+**No.**
+
+It is still blocking.
+
+The only difference is:
+
+* Before: it executed immediately.
+* Now: it executes only when someone subscribes.
+
+---
+
+# What does `subscribeOn()` do?
+
+This is the missing piece.
+
+```java
+Mono.fromCallable(() -> Files.readString(path))
+    .subscribeOn(Schedulers.boundedElastic());
+```
+
+Now Reactor says:
+
+> "This work is blocking, so don't execute it on the event-loop thread. Execute it on a thread from the bounded elastic pool."
+
+So:
+
+* The file read is **still blocking**.
+* But it blocks a **worker thread** from the bounded elastic pool instead of the event-loop thread.
+* The event-loop thread remains free to serve other requests.
+
+---
+
+# Visual comparison
+
+### Without `subscribeOn()`
+
+```
+Event Loop Thread
+
+      |
+      V
+
+Files.readString()
+
+      |
+      |  (Thread blocked)
+      |
+      V
+
+Continue
+```
+
+The event-loop cannot process other requests during that time.
+
+---
+
+### With `subscribeOn(Schedulers.boundedElastic())`
+
+```
+Event Loop
+
+      |
+      |  schedules work
+      V
+
+Bounded Elastic Thread
+
+      |
+      V
+
+Files.readString()
+
+      |
+      | (Worker thread blocked)
+      |
+      V
+
+Result
+
+      |
+      V
+
+Event Loop continues processing other requests
+```
+
+The blocking operation hasn't disappeared—it has just been moved to a thread pool designed for blocking work.
+
+---
+
+# Then what is truly non-blocking?
+
+Suppose you use a reactive database driver like R2DBC.
+
+```java
+Mono<User> user = repository.findById(id);
+```
+
+There is **no blocking call** like `Thread.sleep()` or `executeQuery()` that waits.
+
+Instead:
+
+```
+Request sent
+      |
+      V
+
+Thread is FREE
+
+      |
+      V
+
+Database responds later
+
+      |
+      V
+
+Reactor emits result
+```
+
+The thread never waits.
+
+That is **true non-blocking I/O**.
+
+Notice that in this case, you **don't need** `fromCallable()` or `boundedElastic()` because the driver is already reactive.
+
+---
+
+# When should you use each?
+
+### Existing blocking API
+
+```java
+Mono.fromCallable(() -> Files.readString(path))
+    .subscribeOn(Schedulers.boundedElastic());
+```
+
+✅ Correct
+
+---
+
+### Existing JDBC
+
+```java
+Mono.fromCallable(() -> jdbcTemplate.queryForObject(...))
+    .subscribeOn(Schedulers.boundedElastic());
+```
+
+✅ Correct
+
+---
+
+### Existing REST client using `RestTemplate`
+
+```java
+Mono.fromCallable(() -> restTemplate.getForObject(...))
+    .subscribeOn(Schedulers.boundedElastic());
+```
+
+✅ Correct
+
+---
+
+### Reactive API (already non-blocking)
+
+```java
+webClient.get()
+         .retrieve()
+         .bodyToMono(User.class);
+```
+
+❌ Don't wrap it in `fromCallable()`.
+
+❌ Don't move it to `boundedElastic()`.
+
+It is already non-blocking.
+
+---
+
+<mark># A good mental model</mark>
+
+Think of these adapters as **wrapping paper**, not a magic machine.
+
+* `fromSupplier()`, `fromCallable()`, `fromRunnable()`, and `fromFuture()` **wrap** existing Java code so Reactor can work with it.
+* If the wrapped code is **blocking**, it remains blocking.
+* <mark>`subscribeOn(Schedulers.boundedElastic())` **moves the blocking work** to a dedicated thread pool</mark> so it doesn't block Reactor's event-loop threads.
+* **True non-blocking** comes from using non-blocking libraries (such as `WebClient`, R2DBC, or reactive MongoDB drivers), not from these adapters themselves.
+
+So the common pattern for legacy blocking APIs is:
+
+```java
+Mono.fromCallable(() -> blockingOperation())
+    .subscribeOn(Schedulers.boundedElastic());
+```
+
+This doesn't make `blockingOperation()` non-blocking—it makes your **reactive application behave correctly** by isolating the blocking work from the event-loop.
+
