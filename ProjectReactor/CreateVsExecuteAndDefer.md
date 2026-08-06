@@ -466,6 +466,139 @@ to use until someone places the order."
 
 This mental model captures the key difference:
 
+---
+
+Your question is perfectly clear.
+
+# Publisher Creation: Value Computed vs Value Emitted
+
+## ⭐ Important Note
+
+There are **two completely different concepts** that are often confused.
+
+### 1. Value Computed
+
+This answers:
+
+> **When is the actual value generated or calculated?**
+
+Example:
+
+```java
+Mono.just(getName())
+```
+
+Here, `getName()` is executed **immediately**, before the `Mono` is even created.
+
+---
+
+### 2. Value Emitted
+
+This answers:
+
+> **When does the publisher send the value to the subscriber?**
+
+In Reactor:
+
+> **Almost every publisher emits values only after `subscribe()` is called.**
+
+This is why Reactor is considered **lazy by default**.
+
+So remember:
+
+* **Value Computed** → When the value is created.
+* **Value Emitted** → When Reactor sends the value to subscribers.
+
+These are **independent concepts**.
+
+---
+
+# Comprehensive List
+
+| Publisher Factory     | Value Computed                                                                 | Value Emitted                            | Lazy Publisher? | Notes                                                           |
+| --------------------- | ------------------------------------------------------------------------------ | ---------------------------------------- | --------------- | --------------------------------------------------------------- |
+| `Mono.just(value)`    | **Immediately** (before publisher creation)                                    | On `subscribe()`                         | ✅ Yes           | Stores an already-computed value.                               |
+| `Flux.just(...)`      | **Immediately**                                                                | On `subscribe()`                         | ✅ Yes           | Stores already-computed values.                                 |
+| `Mono.empty()`        | N/A                                                                            | On `subscribe()`                         | ✅ Yes           | Emits only completion.                                          |
+| `Flux.empty()`        | N/A                                                                            | On `subscribe()`                         | ✅ Yes           | Emits only completion.                                          |
+| `Mono.error()`        | Error object already exists                                                    | On `subscribe()`                         | ✅ Yes           | Emits the error signal on subscription.                         |
+| `Flux.error()`        | Error object already exists                                                    | On `subscribe()`                         | ✅ Yes           | Emits the error signal on subscription.                         |
+| `Mono.never()`        | Nothing                                                                        | Never                                    | ✅ Yes           | Never emits anything.                                           |
+| `Flux.never()`        | Nothing                                                                        | Never                                    | ✅ Yes           | Never emits anything.                                           |
+| `Mono.fromSupplier()` | On `subscribe()`                                                               | On `subscribe()`                         | ✅ Yes           | Supplier executed lazily.                                       |
+| `Mono.fromCallable()` | On `subscribe()`                                                               | On `subscribe()`                         | ✅ Yes           | Callable executed lazily.                                       |
+| `Mono.fromRunnable()` | On `subscribe()`                                                               | On `subscribe()`                         | ✅ Yes           | Runnable executed lazily.                                       |
+| `Mono.fromFuture()`   | Future result becomes available asynchronously (future may already be running) | On `subscribe()` (when future completes) | ✅ Yes           | Wraps an existing `CompletableFuture`.                          |
+| `Mono.defer()`        | Publisher created on `subscribe()`                                             | On `subscribe()`                         | ✅ Yes           | Defers publisher creation itself.                               |
+| `Mono.create()`       | On `subscribe()`                                                               | On `subscribe()`                         | ✅ Yes           | Callback runs lazily.                                           |
+| `Flux.range()`        | Numbers generated on `subscribe()`                                             | On `subscribe()`                         | ✅ Yes           | Numbers are generated lazily.                                   |
+| `Flux.interval()`     | Timer starts on `subscribe()`                                                  | On timer ticks after `subscribe()`       | ✅ Yes           | Starts scheduling only after subscription.                      |
+| `Flux.fromIterable()` | Iterator consumed on `subscribe()`                                             | On `subscribe()`                         | ✅ Yes           | Iteration is lazy.                                              |
+| `Flux.fromArray()`    | Array traversed on `subscribe()`                                               | On `subscribe()`                         | ✅ Yes           | Traversal is lazy.                                              |
+| `Flux.fromStream()`   | Stream consumed on `subscribe()`                                               | On `subscribe()`                         | ✅ Yes*          | Java `Stream` is single-use, so `defer()` is often recommended. |
+| `Flux.generate()`     | Generator starts on `subscribe()`                                              | On `subscribe()`                         | ✅ Yes           | Generates one element at a time.                                |
+| `Flux.create()`       | Callback starts on `subscribe()`                                               | On `subscribe()`                         | ✅ Yes           | Useful for callback-based APIs.                                 |
+| `Flux.push()`         | Callback starts on `subscribe()`                                               | On `subscribe()`                         | ✅ Yes           | Single-threaded producer.                                       |
+| `Flux.defer()`        | Publisher created on `subscribe()`                                             | On `subscribe()`                         | ✅ Yes           | Defers publisher creation.                                      |
+
+---
+
+# The One Exception Everyone Talks About
+
+People often say:
+
+> "`Mono.just()` is eager."
+
+This is **not technically correct**.
+
+What's actually eager is **Java method evaluation**.
+
+Example:
+
+```java
+Mono.just(getName());
+```
+
+Java executes:
+
+```text
+getName()
+    ↓
+returns "Deepak"
+    ↓
+Mono.just("Deepak")
+```
+
+The publisher itself still doesn't emit until:
+
+```java
+mono.subscribe();
+```
+
+---
+
+# The Golden Rule
+
+> **All Reactor publishers are lazy with respect to emission.**
+
+The only thing that may happen eagerly is **Java computing the arguments before the publisher is created**, as in:
+
+```java
+Mono.just(getName())
+Flux.just(loadA(), loadB())
+```
+
+Everything else—`fromSupplier()`, `fromCallable()`, `fromRunnable()`, `fromIterable()`, `range()`, `interval()`, `generate()`, `create()`, `defer()`, etc.—defers both **computation** (where applicable) and **emission** until subscription.
+
+## Simple memory trick
+
+| Question                        | Answer                                                                                                                                                     |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **When is the value computed?** | Depends on the factory method (`just()` computes beforehand; most others compute on subscription).                                                         |
+| **When is the value emitted?**  | **Always after `subscribe()`** (except `never()`, which never emits).                                                                                      |
+| **Is Reactor lazy?**            | **Yes. Reactor publishers are lazy by default.** The apparent eagerness of `just()` comes from Java evaluating its arguments before Reactor receives them. |
+
+
 * **`Mono.just()`** → the value already exists.
 * **`Mono.fromSupplier()`** → the value is created later.
 * **`Mono.defer()`** → even the choice of **how to create the publisher** is delayed until subscription.
