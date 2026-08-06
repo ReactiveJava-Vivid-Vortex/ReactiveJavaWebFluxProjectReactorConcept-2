@@ -9,7 +9,7 @@ Think of **`FluxSink` as a microphone** connected to a `Flux`.
 - The **Flux** is the audience listening.
 - The **FluxSink** is the microphone through which you send messages to the audience.
 
-You don't create a `FluxSink` directly. Reactor gives it to you inside `Flux.create()` or `Flux.push()`.
+<mark>You don't create a `FluxSink` directly. Reactor gives it to you inside `Flux.create()` or `Flux.push()`.</mark>
 
 ```java
 Flux<String> flux = Flux.create(sink -> {
