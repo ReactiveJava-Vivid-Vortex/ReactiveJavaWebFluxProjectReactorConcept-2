@@ -123,7 +123,7 @@ Mono.just("Hello")
 
 👉 YES (internally)
 
-* `dispose()` → calls **cancel()**
+* <mark>`dispose()` → calls **cancel()**</mark>
 * It signals:
   👉 “Stop producing data”
 
@@ -139,7 +139,7 @@ Mono.just("Hello")
 
 In real projects:
 
-* Never forget to dispose long-running streams
+* <mark>Never forget to dispose long-running streams</mark>
 * Especially in:
 
   * WebFlux
