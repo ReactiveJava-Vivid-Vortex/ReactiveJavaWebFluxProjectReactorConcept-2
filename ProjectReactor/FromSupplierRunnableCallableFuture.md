@@ -725,5 +725,86 @@ Mono.fromCallable(() -> blockingOperation())
     .subscribeOn(Schedulers.boundedElastic());
 ```
 
+---
+
+Here’s a clean note you can paste below your MD using `---` separator 👇
+
+---
+
+### ❓ Can we use `fromCallable`, `fromSupplier`, `fromRunnable`, `fromFuture` with **Flux** as well?
+
+### ✅ Short Answer
+
+Yes 👍 — but **not directly in the same way as Mono**. These are primarily designed for **Mono (single value)** use cases.
+
+---
+
+### 🧠 Simple Explanation
+
+Think like this:
+
+* **Mono = 0 or 1 value**
+* **Flux = 0 to many values**
+
+Now:
+
+| Method           | What it produces           | Best fit |
+| ---------------- | -------------------------- | -------- |
+| `fromSupplier()` | 1 value                    | Mono     |
+| `fromCallable()` | 1 value (or error)         | Mono     |
+| `fromRunnable()` | no value (just completion) | Mono     |
+| `fromFuture()`   | 1 async value              | Mono     |
+
+👉 So naturally, all these map to **Mono**, not Flux.
+
+---
+
+### 🤔 Then how to use with Flux?
+
+If you really want to use them with Flux, you can **convert Mono → Flux**:
+
+```java
+Flux<Integer> flux = Mono.fromCallable(() -> 10)
+                         .flux();
+```
+
+---
+
+### 🧩 Real Use Cases
+
+#### 1. Single value → Flux
+
+```java
+Flux<Integer> flux = Flux.from(Mono.fromSupplier(() -> 5));
+```
+
+#### 2. Multiple values → use Flux directly
+
+```java
+Flux<Integer> flux = Flux.fromIterable(List.of(1, 2, 3));
+```
+
+---
+
+### 🚨 Important Insight (Very Important)
+
+👉 If your source produces:
+
+* **ONE value → use Mono**
+* **MULTIPLE values → use Flux**
+
+Don’t force `fromCallable()` etc. into Flux unnecessarily.
+
+---
+
+### 🎯 Interview One-Liner
+
+> "`fromCallable`, `fromSupplier`, `fromRunnable`, and `fromFuture` are Mono-specific factory methods because they produce at most one result. If needed in Flux, we convert Mono to Flux using `.flux()`."
+
+---
+
+If you want, next I can extend this with **threading + blocking handling (subscribeOn)** which is where most interview questions come from 🚀
+
+
 This doesn't make `blockingOperation()` non-blocking—it makes your **reactive application behave correctly** by isolating the blocking work from the event-loop.
 
