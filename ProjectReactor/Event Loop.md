@@ -2,7 +2,7 @@
 
 ### ✅ Answer (crisp & to the point)
 
-👉 <mark>**Event loop is a mechanism that continuously checks for tasks and executes them one by one on a single thread without blocking.**</mark>
+👉 <mark>**Event loop is a **mechanism or architecture** that continuously checks for tasks and executes them one by one on a single thread without blocking.**</mark>
 
 👉 It works by:
 
