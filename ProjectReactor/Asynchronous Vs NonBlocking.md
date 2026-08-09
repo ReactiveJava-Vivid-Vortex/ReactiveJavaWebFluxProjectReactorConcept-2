@@ -121,11 +121,13 @@ Think like this:
 ## 🚀 Interview One-Liner
 
 👉
-**"Asynchronous means tasks execute independently without waiting, while non-blocking means a thread is never held up waiting for a task to complete."**
+<mark>**"Asynchronous means tasks execute independently without waiting, while non-blocking means a thread is never held up waiting for a task to complete."**</mark>
 
 You’re right on spot 👍
 
 ---
+
+<mark>**Below question and answer is very important (a gold) and can be quoted as an example to explain and to understand the difference between asynchronous and non blocking.**</mark>
 
 ## ❓ Q: How can this be **asynchronous but still blocking**?
 
