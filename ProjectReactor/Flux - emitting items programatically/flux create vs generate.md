@@ -57,7 +57,7 @@ Flux<String> flux = Flux.create(sink -> {
 
 ## 👉 Idea:
 
-Reactor calls you repeatedly to generate **one item at a time**
+<mark>**Reactor calls you repeatedly*** to generate **one item at a time**</mark>
 
 ## ✅ Use when:
 
