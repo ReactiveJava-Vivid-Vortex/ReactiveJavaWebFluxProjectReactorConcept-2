@@ -123,6 +123,149 @@ Think like this:
 👉
 **"Asynchronous means tasks execute independently without waiting, while non-blocking means a thread is never held up waiting for a task to complete."**
 
+You’re right on spot 👍
+
+---
+
+## ❓ Q: How can this be **asynchronous but still blocking**?
+
+```java
+CompletableFuture<String> future =
+    CompletableFuture.supplyAsync(() -> callApi());  // Main thread continues 🚀
+```
+
+---
+
+## 🔹 Step 1: First understand what’s happening
+
+### 👉 Simple explanation
+
+* `supplyAsync()` → runs `callApi()` in **another thread**
+* Main thread → continues immediately ✅
+
+👉 So this is **asynchronous**
+
+---
+
+## 🔹 Q1: Where does **blocking** happen then?
+
+👉 Inside `callApi()`
+
+Let’s say:
+
+```java
+String callApi() {
+    return restTemplate.getForObject("http://example.com", String.class);
+}
+```
+
+### ⚠️ Important:
+
+* `restTemplate` is **blocking**
+* That thread will **wait** for response 😴
+
+---
+
+## 🔥 So what’s really happening?
+
+### Flow:
+
+1. Main thread starts async task ✅
+2. New thread picks `callApi()` ✅
+3. That thread **gets blocked waiting for API response** ❌
+
+👉 So:
+
+* Main thread → free (Async ✅)
+* Worker thread → blocked (Blocking ❌)
+
+---
+
+## 🧠 Real-Life Analogy
+
+### 🧾 Scenario: You ask your friend to bring coffee
+
+* You: “Go get coffee” ☕
+* You continue working ✅ (Async)
+
+But your friend:
+
+* Goes to shop
+* **Stands in queue waiting** 😴 (Blocking)
+
+👉 That’s exactly this case.
+
+---
+
+## 🔹 Q2: Why is this important?
+
+Because:
+
+👉 You didn’t eliminate blocking
+👉 You just **moved it to another thread**
+
+---
+
+## 🔹 Q3: When does it become NON-BLOCKING?
+
+If `callApi()` itself is non-blocking:
+
+```java
+Mono<String> callApi() {
+    return webClient.get()
+        .uri("http://example.com")
+        .retrieve()
+        .bodyToMono(String.class);
+}
+```
+
+👉 Now:
+
+* No thread is waiting 😍
+* System uses event loop
+
+---
+
+## 🔥 Key Difference (Simple)
+
+| Case                             | Main Thread | Worker Thread  | Type                 |
+| -------------------------------- | ----------- | -------------- | -------------------- |
+| CompletableFuture + RestTemplate | Free        | Waiting 😴     | Async + Blocking     |
+| WebClient (Reactor)              | Free        | Not waiting 🚀 | Async + Non-blocking |
+
+---
+
+## 🧠 Final Mental Model
+
+👉
+**Async = “Who is doing the work?”**
+**Blocking = “Is someone stuck waiting?”**
+
+---
+
+## 🚀 Interview Ready Answer
+
+👉
+**"CompletableFuture is asynchronous because it runs tasks in a separate thread, but it can still be blocking if the underlying operation (like RestTemplate) blocks that thread while waiting for a response."**
+
+---
+
+## 💡 Architect-Level Insight
+
+This is a common mistake:
+
+> ❌ “We used CompletableFuture so it’s non-blocking”
+
+👉 Reality:
+
+* It increases parallelism
+* But **does NOT improve scalability like Reactor**
+
+---
+
+If you want next step, I can show:
+👉 Thread comparison: **10k requests → CompletableFuture vs WebFlux (huge difference)**
+
 ---
 
 ## 💡 Pro Tip (for your Architect goal)
