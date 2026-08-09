@@ -142,7 +142,7 @@ CompletableFuture<String> future =
 
 ### 👉 Simple explanation
 
-* `supplyAsync()` → runs `callApi()` in **another thread**
+* `supplyAsync()` → runs `callApi()` in **another thread (worker thread)**
 * Main thread → continues immediately ✅
 
 👉 So this is **asynchronous**
@@ -164,7 +164,7 @@ String callApi() {
 ### ⚠️ Important:
 
 * `restTemplate` is **blocking**
-* That thread will **wait** for response 😴
+* That thread (worker thread) will **wait** for response 😴
 
 ---
 
