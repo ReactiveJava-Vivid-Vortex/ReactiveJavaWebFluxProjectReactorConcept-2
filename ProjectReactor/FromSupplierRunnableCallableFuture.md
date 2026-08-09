@@ -848,7 +848,7 @@ If you want each name to flow individually:
 ```java
 Flux<String> flux =
         Mono.fromSupplier(this::getUserNames) // Mono<List<String>>
-            .flatMapMany(Flux::fromIterable); // convert to Flux<String>
+            .flatMapMany(Flux::fromIterable); // convert to Flux<String>. Without method reference it would be .flatMapMany(list -> Flux.fromIterable(list)) -> Notice it gives list as the input and then internally we are using Flux.fromIterable which return Flux<Stirng>. Insted of this twisted operation you can simply do Flux.fromIterable(getUserNames()) as give below and get Fux<String> in one line.
 ```
 
 ✔️ Output:
