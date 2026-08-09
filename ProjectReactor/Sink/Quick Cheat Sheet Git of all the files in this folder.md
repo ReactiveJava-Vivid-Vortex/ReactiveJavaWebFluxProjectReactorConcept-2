@@ -281,7 +281,7 @@ Sub2: B
 ## 🔥 Final Interview Summary (1-liner)
 
 👉
-**"Sinks in Reactor are thread-safe, programmatic data emitters used to push events into reactive streams, replacing deprecated Processors, and supporting unicast, multicast, and replay patterns."**
+<mark>**"Sinks in Reactor are thread-safe, programmatic data emitters used to push events into reactive streams, replacing deprecated Processors, and supporting unicast, multicast, and replay patterns."**</mark>
 
 ---
 
