@@ -70,7 +70,11 @@ Mono<String> mono =
         Mono.fromSupplier(() -> "Hello");
 ```
 
-Nothing runs yet.
+Nothing runs yet. Side note: In Project Reactor, nothing run untill someone subscribes to it. For example with subscribe or in webflux spring subcribes. Exceptoin to this is hot publisher.
+
+```
+    Sinks.Many<Integer> sink = Sinks.many.multicast.onBackPressureBuffer();
+```
 
 Only when someone subscribes...
 
