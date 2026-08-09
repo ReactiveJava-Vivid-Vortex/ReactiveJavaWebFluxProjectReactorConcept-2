@@ -16,8 +16,8 @@
 
 ## 🧠 2-Line Version (if interviewer is in hurry)
 
-👉 <mark>*Event loop is a loop that keeps picking tasks from a queue and executes them on a single thread without blocking.*</mark>
-👉 <mark>*It enables asynchronous, non-blocking execution and better scalability.*</mark>
+👉 <mark>*Event loop is a loop that keeps picking tasks from a queue and executes them on a **single thread** without blocking.*</mark>
+👉 <mark>*It enables asynchronous, non-blocking execution and better scalability.*</mark> That means single thread can handle multiple tasks without being blocked. Thus with few threads we can handle multiple tasks in contrast to normal java where each thread is blocked and thus can handle only few requests.
 
 ---
 
