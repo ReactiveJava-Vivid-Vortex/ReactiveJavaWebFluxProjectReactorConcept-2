@@ -8,7 +8,7 @@ Your question is almost perfect. A slightly more natural version would be:
 
 ---
 
-# Q. Explain Project Reactor's `fromSupplier()`, `fromRunnable()`, `fromCallable()`, and `fromFuture()` in simple terms.
+# Q. Explain Project Reactor's `fromSupplier()`, `fromRunnable()`, `fromCallable()`, and `fromFuture()` in simple terms. Side note these factory methods are Mono related and not flux. Reason you can check in below.
 
 ## First understand why these methods exist
 
