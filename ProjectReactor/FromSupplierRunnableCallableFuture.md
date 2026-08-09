@@ -859,6 +859,13 @@ Amit
 Rahul
 ```
 
+## There is another way as below if you have Mono<List> mono
+
+```
+    Flux<String> flux =
+        mono.flatMapIterable(list -> list);
+```
+
 ---
 
 ## 🔥 Cleaner Way (Better Approach)
