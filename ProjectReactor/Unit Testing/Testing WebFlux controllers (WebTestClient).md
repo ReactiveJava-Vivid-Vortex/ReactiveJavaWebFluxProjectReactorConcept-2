@@ -293,6 +293,133 @@ client.get()
 
 ---
 
+You’re right on spot 👍
+
+---
+
+## ❓ Q: Is a **slice test same as a unit test?**
+
+### ✅ Short Answer:
+
+👉 **No, they are not exactly the same — but they are very close.**
+
+---
+
+## 🧠 Simple Explanation
+
+Think like this:
+
+* **Unit Test** → tests *one single class in isolation*
+* **Slice Test** → tests *one layer (group of classes) with Spring support*
+
+---
+
+## 🔍 Key Difference (VERY IMPORTANT)
+
+### 🧩 Unit Test
+
+👉 Pure Java test (no Spring)
+
+* No Spring context
+* No annotations like `@WebFluxTest`
+* You manually create objects
+
+```java
+class MyServiceTest {
+
+    private MyService myService = new MyService();
+
+    @Test
+    void test() {
+        String result = myService.doSomething();
+        assertEquals("Hello", result);
+    }
+}
+```
+
+👉 Fastest possible
+👉 Fully isolated
+👉 No Spring magic
+
+---
+
+### 🍰 Slice Test
+
+👉 Partial Spring test (one layer only)
+
+* Uses Spring annotations (`@WebFluxTest`)
+* Loads **only part of Spring context**
+* Uses mocks for dependencies
+
+```java
+@WebFluxTest(MyController.class)
+class MyControllerTest {
+
+    @Autowired
+    WebTestClient client;
+
+    @MockBean
+    MyService service;
+
+}
+```
+
+👉 Slightly slower than unit test
+👉 But faster than full integration test
+👉 Uses Spring features
+
+---
+
+## ⚖️ Clear Comparison
+
+| Feature        | Unit Test       | Slice Test           |
+| -------------- | --------------- | -------------------- |
+| Spring Context | ❌ No            | ✅ Partial            |
+| Scope          | Single class    | One layer            |
+| Speed          | ⚡ Fastest       | 🚀 Fast              |
+| Dependencies   | Manually mocked | Spring-managed mocks |
+| Example        | Service test    | Controller test      |
+
+---
+
+## 🎯 Real Understanding (important for you)
+
+👉 You can think like this:
+
+* **Unit test = testing logic**
+* **Slice test = testing framework + layer behavior**
+
+---
+
+## 💡 Real Example from your WebFlux case
+
+* Unit test → test `MyService` logic
+* Slice test → test `MyController` + request/response using `WebTestClient`
+
+---
+
+## 💬 Interview One-Liner
+
+👉 *“A slice test is not a pure unit test; it loads a partial Spring context to test a specific layer, whereas a unit test tests a single class without Spring.”*
+
+---
+
+## ⚠️ Brutally Honest Insight (for your growth)
+
+A lot of devs confuse this 👇
+
+👉 Writing `@WebFluxTest` and calling it a unit test ❌
+👉 It is actually a **slice test (or lightweight integration test)**
+
+---
+
+If you want next level clarity, I can explain:
+
+👉 Where does **integration test** fit vs slice vs unit
+👉 And when to use each in real projects (this is what architects care about)
+
+---
+
 # 🚀 Architect-Level Insight (Brutally Honest)
 
 Most devs:
