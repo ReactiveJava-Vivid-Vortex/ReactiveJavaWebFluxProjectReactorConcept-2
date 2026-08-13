@@ -481,6 +481,15 @@ cache.getUser(id)
     .switchIfEmpty(userRepository.findById(id));
 ```
 
+Below Example can use used in spring Webflux in the service layer and is a very good example.
+
+```java
+userRepository.getUser(id) // Repo is returning Mono<User> getUser(int id);
+    .switchIfEmpty(Mono.error(new UserNotFoundException("User not found.))
+    .subscribe(System.out::println);
+```
+
+
 Conceptually:
 
 ```text
