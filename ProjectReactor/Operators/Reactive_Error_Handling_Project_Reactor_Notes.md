@@ -81,6 +81,9 @@ A useful rule:
 <a id="section-2"></a>
 # 2. `onErrorReturn` — return a fallback value
 
+### Simple note
+Think of this as: **“If anything goes wrong, give me this fixed fallback value.”** It is the simplest error-recovery option because you do not run another operation; you just return a value.
+
 Use this when an error occurs and you simply want to return **one fallback value**.
 
 ### Example
@@ -154,6 +157,9 @@ Not good when the fallback requires another database/API call.
 <a id="section-3"></a>
 # 3. `onErrorResume` — switch to another Publisher
 
+### Simple note
+Think of this as: **“If this operation fails, switch to another operation.”** The replacement is a `Mono` or `Flux`, so the fallback can itself perform work such as reading from a cache or calling another service.
+
 Use this when you need to perform another operation after an error.
 
 Think:
@@ -219,6 +225,9 @@ onErrorResume → fallback PUBLISHER
 <a id="section-4"></a>
 # 4. `onErrorMap` — convert one exception into another
 
+### Simple note
+Think of this as: **“The operation failed, but I want to expose a different exception.”** The original exception can be kept as the cause, while the new exception gives the application a more meaningful/domain-specific error.
+
 Use this when the operation fails with one exception, but you want to expose a more meaningful/domain-specific exception.
 
 ### Example
@@ -258,6 +267,9 @@ Your global exception handler can then handle the domain-specific exception.
 
 <a id="section-5"></a>
 # 5. `onErrorComplete` — convert error into completion
+
+### Simple note
+Think of this as: **“If an error happens, hide the error and finish normally.”** Nothing is returned for the failed operation. Because the error is swallowed, use it only when silently stopping is genuinely the desired behavior.
 
 Your note is correct: it simply turns an error into a `complete` signal.
 
@@ -310,6 +322,9 @@ or:
 
 <a id="section-6"></a>
 # 6. `onErrorContinue` — skip the failing element and continue
+
+### Simple note
+Think of this as: **“This particular item failed, so skip it and try processing the remaining items.”** This is mainly relevant to element-by-element processing in `Flux`. It has special semantics, so prefer more localized error handling when possible.
 
 This one needs special attention.
 
@@ -387,6 +402,9 @@ This makes it clear that **only that individual operation** is being skipped.
 <a id="section-7"></a>
 # 7. `defaultIfEmpty` — fallback for EMPTY, not ERROR
 
+### Simple note
+Think of this as: **“The operation succeeded, but it returned nothing, so give me this default value.”** It does not handle exceptions. `Mono.empty()` is the important case to understand here.
+
 This is important:
 
 > `defaultIfEmpty` does NOT handle exceptions.
@@ -434,6 +452,9 @@ fallback value
 
 <a id="section-8"></a>
 # 8. `switchIfEmpty` — fallback Publisher for EMPTY
+
+### Simple note
+Think of this as: **“The first Publisher returned nothing, so try this other Publisher instead.”** This is especially useful for fallback flows such as **cache → database**.
 
 `switchIfEmpty` is similar to `defaultIfEmpty`, but instead of supplying a single value, you supply another Publisher.
 
@@ -529,6 +550,9 @@ EMPTY → operation succeeded but found nothing
 <a id="section-10"></a>
 # 10. `doOnError` — observe/log an error
 
+### Simple note
+Think of this as: **“I want to know that an error happened, but I do not want to change it.”** It is commonly used for logging, metrics, and tracing. The error continues downstream after this operator.
+
 `doOnError` does **not** handle or replace the error.
 
 It is mainly for side effects such as:
@@ -575,6 +599,9 @@ onErrorMap    → transform error
 <a id="section-11"></a>
 # 11. `doFinally` — run something when the sequence terminates
 
+### Simple note
+Think of this as: **“When this reactive sequence is completely finished for any reason, run this action.”** It runs for completion, error, or cancellation, so it is useful for cleanup and metrics.
+
 `doFinally` runs when the sequence terminates by:
 
 - complete
@@ -605,6 +632,9 @@ It is different from `doOnError` because it is not only for errors.
 
 <a id="section-12"></a>
 # 12. `retry` — retry when an error occurs
+
+### Simple note
+Think of this as: **“The operation failed, so try the same operation again.”** It is useful for temporary failures, but retries should be used carefully because repeating an operation can have side effects.
 
 Sometimes the correct response to an error is simply to try again.
 
@@ -646,6 +676,9 @@ Be careful with retries for non-idempotent operations such as some POST operatio
 <a id="section-13"></a>
 # 13. `retryWhen` — controlled retry
 
+### Simple note
+Think of this as: **“Retry, but let me control how and when the retries happen.”** This is more powerful than `retry`, and it is commonly used for retry limits, delays, and exponential backoff.
+
 `retryWhen` provides more control over retry behavior.
 
 For example, you can use backoff:
@@ -680,6 +713,9 @@ This is much more appropriate for transient failures such as temporary network p
 
 <a id="section-14"></a>
 # 14. `timeout` — turn slow operations into errors
+
+### Simple note
+Think of this as: **“If this operation takes longer than the allowed time, treat it as a failure.”** This prevents a slow external service from keeping the reactive pipeline waiting indefinitely.
 
 Although not strictly an error-handler, `timeout` is commonly used with reactive error handling.
 
@@ -719,6 +755,9 @@ You can also provide a fallback Publisher directly:
 <a id="section-15"></a>
 # 15. `using` / resource cleanup
 
+### Simple note
+Think of this as: **“Create a resource, use it, and make sure it is cleaned up afterward.”** It is useful for resources with a clear lifecycle, especially when cleanup must happen even if the reactive operation fails.
+
 For resources that need deterministic cleanup, Reactor provides `using`.
 
 The general idea is:
@@ -749,6 +788,9 @@ This is useful when working with resources that have explicit lifecycle manageme
 
 <a id="section-16"></a>
 # 16. `materialize` / `dematerialize` — treat signals as data
+
+### Simple note
+Think of this as: **“Turn Reactor signals such as `onNext`, `onError`, and `onComplete` into objects that I can process like normal data.”** This is an advanced operator and is rarely needed in everyday WebFlux code.
 
 These are advanced operators.
 
